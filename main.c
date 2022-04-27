@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <limits.h>
 
+#define SEGMENTS_PER_LINE 20
 
+// o is zero
+// x is one
 typedef enum match_{
     o, x
-}match;
+} __attribute__((packed)) match;
 
 typedef struct segment_{
     match m1: 1;
@@ -17,19 +21,46 @@ typedef struct segment_{
     match m6: 1;
     match m7: 1;
     match m8: 1;
-}segment;
+} __attribute__((packed)) segment;
 
-segment *generate_segments(int length, int density){
+segment *generate_segments(int length, double density);
+void print_segment(segment s);
+void print_segments(segment *s, int length);
+char *convert_segments_to_string(segment *s, int length);
+int get_the_best_match(const char *sequence);
+double check_segment_density(segment *s, int length);
+
+
+int main(){
+    srand(time(NULL));
+    printf("8bit segment takes %ld bytes of memory\n", sizeof(segment));
+
+    int len = 10000;
+    double target_density = 0.55;
+    segment *test1 = generate_segments(len, target_density);
+    double actual_density = check_segment_density(test1, len);
+
+    printf("Target density: %f; Actual density: %f\n", target_density, actual_density);
+    char *seg = convert_segments_to_string(test1, len);
+    //print_segments(test1, len);
+    puts("");
+    printf("%d\n", get_the_best_match(seg));
+    free(seg);
+    free(test1);
+}
+
+
+segment *generate_segments(int length, double density){
     segment *res = calloc(length, sizeof(segment));
     for(int i = 0; i < length; i++) {
-        if (rand() % 100 <= density) res[i].m1 = x;
-        if (rand() % 100 <= density) res[i].m2 = x;
-        if (rand() % 100 <= density) res[i].m3 = x;
-        if (rand() % 100 <= density) res[i].m4 = x;
-        if (rand() % 100 <= density) res[i].m5 = x;
-        if (rand() % 100 <= density) res[i].m6 = x;
-        if (rand() % 100 <= density) res[i].m7 = x;
-        if (rand() % 100 <= density) res[i].m8 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m1 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m2 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m3 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m4 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m5 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m6 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m7 = x;
+        if (((double)rand() / RAND_MAX) < density) res[i].m8 = x;
     }
     return res;
 }
@@ -46,8 +77,14 @@ void print_segment(segment s){
 }
 
 void print_segments(segment *s, int length){
+    int segs = 0;
     for(int i = 0; i < length; i++){
         print_segment(s[i]);
+        segs++;
+        if (segs == SEGMENTS_PER_LINE){
+            puts("");
+            segs = 0;
+        }
     }
     puts("");
 }
@@ -68,7 +105,6 @@ char *convert_segments_to_string(segment *s, int length){
     return res;
 }
 
-#include <limits.h>
 
 int get_the_best_match(const char *sequence){
     int max = INT_MIN, sum = 0;
@@ -81,20 +117,20 @@ int get_the_best_match(const char *sequence){
     return max;
 }
 
-int main(){
-    srand(time(NULL));
-    int len = 10;
-    segment *test1 = generate_segments(len, 70);
-    char *seg = convert_segments_to_string(test1, len);
-    printf("%s", seg);
-    puts("");
-    printf("%d\n", get_the_best_match(seg));
-    free(seg);
-    free(test1);
+double check_segment_density(segment *s, int length){
+    int c = 0;
+    for(int i = 0; i < length; i++){
+        if(s[i].m1 == x) c++;
+        if(s[i].m2 == x) c++;
+        if(s[i].m3 == x) c++;
+        if(s[i].m4 == x) c++;
+        if(s[i].m5 == x) c++;
+        if(s[i].m6 == x) c++;
+        if(s[i].m7 == x) c++;
+        if(s[i].m8 == x) c++;
+    }
+    return (double)c/(length * 8);
 }
-
-
-
 
 
 
