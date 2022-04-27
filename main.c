@@ -23,30 +23,43 @@ typedef struct segment_{
     match m8: 1;
 } __attribute__((packed)) segment;
 
+typedef struct best_match_{
+    int pos, score;
+}best_match;
+
 segment *generate_segments(int length, double density);
 void print_segment(segment s);
 void print_segments(segment *s, int length);
 char *convert_segments_to_string(segment *s, int length);
-int get_the_best_match(const char *sequence);
+best_match get_the_best_match(const char *sequence);
 double check_segment_density(segment *s, int length);
-
+char *generate_random_string(const char *alphabet, int length);
 
 int main(){
     srand(time(NULL));
-    printf("8bit segment takes %ld bytes of memory\n", sizeof(segment));
+    printf("8-bit segment takes %ld bytes of memory\n", sizeof(segment));
 
-    int len = 10000;
+    int len = 3;
+
     double target_density = 0.55;
-    segment *test1 = generate_segments(len, target_density);
-    double actual_density = check_segment_density(test1, len);
+    segment *segment = generate_segments(len, target_density);
+    double actual_density = check_segment_density(segment, len);
 
     printf("Target density: %f; Actual density: %f\n", target_density, actual_density);
-    char *seg = convert_segments_to_string(test1, len);
-    //print_segments(test1, len);
-    puts("");
-    printf("%d\n", get_the_best_match(seg));
+    char *seg = convert_segments_to_string(segment, len);
+    print_segments(segment, len);
+    best_match res = get_the_best_match(seg);
+    printf("pos: %d, len: %d\n", res.pos, res.score);
+    char *string = generate_random_string("AGTC", 120);
+    char *target = generate_random_string("AGTC", 8);
+    printf("%s\n", string);
+    printf("%s\n", target);
+
+
+    free(string);
+    free(target);
     free(seg);
-    free(test1);
+    free(segment);
 }
 
 
@@ -106,15 +119,25 @@ char *convert_segments_to_string(segment *s, int length){
 }
 
 
-int get_the_best_match(const char *sequence){
+best_match get_the_best_match(const char *sequence){
+    best_match res = {0};
     int max = INT_MIN, sum = 0;
+    int best_pos = 0, start_pos = 0;
     int length = strlen(sequence);
     for(int i = 0 ; i < length; i++){
         if(sequence[i] == 'x') sum++; else sum--;
-        if(max < sum) max = sum;
-        if(sum < 0) sum = 0;
+        if(max < sum) {
+            max = sum;
+            best_pos = start_pos;
+        }
+        if(sum < 0) {
+            sum = 0;
+            start_pos = i;
+        }
     }
-    return max;
+    res.score = max;
+    res.pos = best_pos;
+    return res;
 }
 
 double check_segment_density(segment *s, int length){
@@ -132,6 +155,14 @@ double check_segment_density(segment *s, int length){
     return (double)c/(length * 8);
 }
 
+char *generate_random_string(const char *alphabet, int length){
+    int a_len = strlen(alphabet);
+    char *res = calloc(length+1, sizeof(char ));
 
+    for(int i = 0; i < length; i++)
+        res[i] = alphabet[rand()%a_len];
+
+    return res;
+}
 
 
