@@ -10,6 +10,8 @@ OBJECTS			=$(SOURCES:.c=.o)
 all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
+build: $(EXECUTABLE)
+
 valgrind: $(EXECUTABLE)
 	valgrind --leak-check=full -v ./$(EXECUTABLE) $(ARGS)
 
