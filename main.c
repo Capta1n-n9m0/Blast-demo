@@ -7,6 +7,7 @@
 #include "blast-core.h"
 #include "blast-generators.h"
 
+
 int main(int argc, char **argv){
     srand(time(NULL));
     assert(argc > 2);
@@ -18,7 +19,7 @@ int main(int argc, char **argv){
 
     char *file_contents = calloc(filesize+1, sizeof(char));
     fgets(file_contents, filesize, fasta);
-    puts(file_contents);
+    //puts(file_contents);
     best_match b = get_blast_matches(file_contents, argv[2]);
     printf("pos: %d, score: %d\n",b.pos, b.score);
 
