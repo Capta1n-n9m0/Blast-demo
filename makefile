@@ -1,4 +1,4 @@
-ARGS			=
+ARGS			=DNACervisiaeSaccharomyces.txt.oneline acacgctacaggcctataactt
 EXECUTABLE		=main
 CC				=gcc
 CFLAGS			=-Wall -Werror --pedantic -std=c2x -g
@@ -7,10 +7,13 @@ SOURCES			=$(wildcard *.c)
 HEADERS			=$(wildcard *.h)
 OBJECTS			=$(SOURCES:.c=.o)
 
-all: $(EXECUTABLE)
+all: $(EXECUTABLE) $(parse)
 	./$(EXECUTABLE) $(ARGS)
 
 build: $(EXECUTABLE)
+
+parse: parse_fasta.py DNACervisiaeSaccharomyces.txt
+	./parse_fasta.py DNACervisiaeSaccharomyces.txt
 
 valgrind: $(EXECUTABLE)
 	valgrind --leak-check=full -v ./$(EXECUTABLE) $(ARGS)

@@ -3,33 +3,26 @@
 #include <time.h>
 #include <string.h>
 #include <limits.h>
+#include <assert.h>
 #include "blast-core.h"
 #include "blast-generators.h"
 
-int main(){
+int main(int argc, char **argv){
     srand(time(NULL));
-    printf("8-bit segment takes %ld bytes of memory\n", sizeof(segment));
+    assert(argc > 2);
+    FILE *fasta = fopen(argv[1], "r");
 
-    int len = 3;
+    fseek(fasta, 0, SEEK_END);
+    int filesize = ftell(fasta);
+    fseek(fasta, 0, SEEK_SET);
 
-    double target_density = 0.55;
-    segment *segment = generate_segments(len, target_density);
-    double actual_density = check_segment_density(segment, len);
+    char *file_contents = calloc(filesize+1, sizeof(char));
+    fgets(file_contents, filesize, fasta);
+    puts(file_contents);
+    best_match b = get_blast_matches(file_contents, argv[2]);
+    printf("pos: %d, score: %d\n",b.pos, b.score);
 
-    printf("Target density: %f; Actual density: %f\n", target_density, actual_density);
-    char *seg = convert_segments_to_string(segment, len);
-    print_segments(segment, len);
-    best_match res = get_the_best_match(seg);
-    printf("pos: %d, len: %d\n", res.pos, res.score);
-    char *string = generate_random_string("AGTC", 120);
-    char *target = generate_random_string("AGTC", 8);
-    printf("%s\n", string);
-    printf("%s\n", target);
-
-
-    free(string);
-    free(target);
-    free(seg);
-    free(segment);
+    free(file_contents);
+    fclose(fasta);
 }
 

@@ -27,7 +27,7 @@ void print_segment(segment s);
 void print_segments(segment *s, int length);
 char *convert_segments_to_string(segment *s, int length);
 best_match get_the_best_match(const char *sequence);
-
+best_match get_blast_matches(const char *data, const char *target);
 
 
 
