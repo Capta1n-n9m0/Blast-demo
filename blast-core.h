@@ -2,12 +2,13 @@
 #define BLAST_DEMO_BLAST_CORE_H
 
 
-typedef struct best_match_{
-    int pos, score;
-}best_match;
+typedef struct best_match_ {
+	int nPos, nScore;
+} best_match;
 
-best_match process_matches(const char *matches);
-best_match get_blast_matches(const char *data, const char *target);
+best_match process_matches(const char *sMatches);
+
+best_match get_blast_matches(const char *sData, const char *sTarget);
 
 
 #endif //BLAST_DEMO_BLAST_CORE_H

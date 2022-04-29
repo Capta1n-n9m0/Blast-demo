@@ -1,44 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <limits.h>
-#include <assert.h>
 #include "blast-core.h"
-#include "blast-generators.h"
 
-void test_file(){
-    FILE *fasta = fopen("DNACervisiaeSaccharomyces.txt.oneline", "r");
-
-    fseek(fasta, 0, SEEK_END);
-    int filesize = ftell(fasta);
-    fseek(fasta, 0, SEEK_SET);
-
-    char *file_contents = calloc(filesize+1, sizeof(char));
-    fgets(file_contents, filesize, fasta);
-    //puts(file_contents);
-    best_match b = get_blast_matches(file_contents, "acacgctacaggcctataactt");
-    printf("pos: %d, score: %d\n",b.pos, b.score);
-
-    free(file_contents);
-    fclose(fasta);
-
+void test_file() {
+	FILE *pFasta = fopen("DNACervisiaeSaccharomyces.txt.oneline", "r");
+	
+	fseek(pFasta, 0, SEEK_END);
+	int nFilesize = ftell(pFasta);
+	fseek(pFasta, 0, SEEK_SET);
+	
+	char *sFile_contents = calloc(nFilesize + 1, sizeof(char));
+	fgets(sFile_contents, nFilesize, pFasta);
+	
+	best_match b = get_blast_matches(sFile_contents, "acacgctacaggcctataactt");
+	printf("nPos: %d, nScore: %d\n", b.nPos, b.nScore);
+	
+	free(sFile_contents);
+	fclose(pFasta);
+	
 }
 
-void test_matches(){
-    const char match1[] = "00100100010011011100";
-    const char match2[] = "01111000000110111100000011";
-
-    best_match res1 = process_matches(match1);
-    best_match res2 = process_matches(match2);
-    puts(match1);
-    printf("pos: %d, score: %d\n", res1.pos, res1.score);
-    puts(match2);
-    printf("pos: %d, score: %d\n", res2.pos, res2.score);
+void test_matches() {
+	const char sMatch1[] = "00100100010011011100";
+	const char sMatch2[] = "01111000000110111100000011";
+	
+	best_match res1 = process_matches(sMatch1);
+	best_match res2 = process_matches(sMatch2);
+	puts(sMatch1);
+	printf("nPos: %d, nScore: %d\n", res1.nPos, res1.nScore);
+	puts(sMatch2);
+	printf("nPos: %d, nScore: %d\n", res2.nPos, res2.nScore);
 }
 
-int main(){
-    test_matches();
-    test_file();
+int main() {
+	test_matches();
+	test_file();
 }
 
