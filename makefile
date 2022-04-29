@@ -8,6 +8,7 @@ HEADERS			=$(wildcard *.h)
 OBJECTS			=$(SOURCES:.c=.o)
 
 all: $(EXECUTABLE) $(parse)
+	$(parse)
 	./$(EXECUTABLE) $(ARGS)
 
 build: $(EXECUTABLE)
