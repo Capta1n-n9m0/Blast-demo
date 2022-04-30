@@ -57,27 +57,95 @@ typedef struct sw_result_{
 }sw_result;
 
 typedef struct linked_node_{
-	char value;
+	int length, row, col, value;
+	char letter;
 	struct linked_node_ *next;
 }linked_node;
 
-linked_node *add_to_beginning_of_linked_list(linked_node *ll, char c){
+linked_node *add_to_beginning_of_linked_list(linked_node *list, int row, int col, int value){
 	linked_node *res = calloc(1, sizeof(linked_node));
-	res->next = ll;
-	res->value = c;
+	if(list == NULL) res->length=1; else res->length = list->length + 1;
+	res->row = row;
+	res->col = col;
+	res->value = value;
+	res->next = list;
 	return res;
 }
 
-sw_result sw_backtrack(matrix m, char *data, char *target){
+sw_result sw_backtrack(matrix m, const char *data, const char *target){
 	sw_result res;
-	int length_target = strlen(target);
-	res.v1 = calloc(length_target*2+1, sizeof(char ));
-	res.v2 = calloc(length_target*2+1, sizeof(char ));
-	for(int row = m.maximum.row, col = m.maximum.col; m.data[row][col];){
-	
-	}
 	res.score = m.maximum.val;
+	int row = m.maximum.row, col = m.maximum.col;
+	int next_row, next_col;
+	int value = m.data[row][col];
+	linked_node *path = add_to_beginning_of_linked_list(NULL, row, col, value);
+	int diag, left, up;
+	while (m.data[row][col]){
+		diag = m.data[row-1][col-1];
+		left = m.data[row][col-1];
+		up = m.data[row-1][col];
+		next_row = row-1;
+		next_col = col-1;
+		if(up > value){
+			next_row = row - 1;
+			next_col = col;
+		}
+		if(left > value){
+			next_row = row;
+			next_col = col-1;
+		}
+		if(diag > value){
+			next_row = row-1;
+			next_col = col-1;
+		}
+		row = next_row;
+		col = next_col;
+		value = m.data[row][col];
+		if(value != 0) path = add_to_beginning_of_linked_list(path, row, col, value);
+	}
+	linked_node *curr = path;
+	res.v1 = calloc(path->length+1, sizeof(char ));
+	res.v2 = calloc(path->length+1, sizeof(char ));
+	int letter_counter = 0;
+	int prev_col = -1, prev_row = -1;
+	while (curr){
+		row = curr->row;
+		col = curr->col;
+		if(row == prev_row) res.v1[letter_counter] = '-';
+		else res.v1[letter_counter] = target[row];
+		if(col == prev_col) res.v2[letter_counter] = '-';
+		else res.v2[letter_counter] = data[col];
+		prev_col = col;
+		prev_row = row;
+		letter_counter++;
+		curr = curr->next;
+	}
 	return res;
+}
+
+void test_sw_on_file(){
+	FILE *pFasta = fopen("DNACervisiaeSaccharomyces.txt.oneline", "r");
+	
+	fseek(pFasta, 0, SEEK_END);
+	int nFilesize = ftell(pFasta);
+	fseek(pFasta, 0, SEEK_SET);
+	
+	char *sFile_contents = calloc(nFilesize + 1, sizeof(char));
+	fgets(sFile_contents, nFilesize, pFasta);
+	
+	char target[] = "acacgctacaggcctataactt";
+	
+	matrix matrix1 = SW_search(sFile_contents, target);
+	
+	printf("(row = %d, col = %d) = %d\n", matrix1.maximum.row, matrix1.maximum.col, matrix1.maximum.val);
+	
+	sw_result res = sw_backtrack(matrix1, sFile_contents, target);
+	
+	printf("%s\n%s\n", res.v1, res.v2);
+	
+	
+	
+	
 }
 
 void test_sw(){
@@ -90,7 +158,11 @@ void test_sw(){
 		}
 		puts("");
 	}
-	printf("(col=%d, row=%d) = %d", res.maximum.col, res.maximum.row, res.maximum.val);
+	printf("(col=%d, row=%d) = %d\n", res.maximum.col, res.maximum.row, res.maximum.val);
+	sw_result full = sw_backtrack(res, dna, searchedPart);
+	printf("%s\n%s\n", full.v1, full.v2);
+	
+	
 }
 
 void test_file() {
@@ -126,6 +198,7 @@ void test_matches() {
 int main() {
 //	test_matches();
 //	test_file();
-	test_sw();
+	//test_sw();
+	test_sw_on_file();
 }
 
